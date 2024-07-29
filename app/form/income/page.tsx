@@ -68,7 +68,7 @@ function IncomeForm() {
         // ✅ This will be type-safe and validated.
             fetch('/api/transaction', {
                 method: 'POST',
-                body: JSON.stringify({ ...values, type: 1848377 }),
+                body: JSON.stringify({ ...values, type: "Income" }),
             }).then((res)=>{
                 return res.json()
             }).then((data) => {
