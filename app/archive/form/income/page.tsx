@@ -1,26 +1,28 @@
+
+import { AmountInput, SubmitButton } from "@/app/form/components/form"
+import Header from "@/app/form/components/header"
+import { toggleNumberFormat } from "@/app/form/components/util"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { FormEvent } from "react"
-import { AmountInput } from "../components/form"
-import Header from "../components/header"
-
-export default function ExpensePage(){
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, AwaitedReactNode } from "react"
+export default function IncomePage(){
     return(
         <main>
-            <Header title="Expense Form" />
-            <ExpenseForm />
+            <Header title={"Income Form"}  />
+            <IncomeForm />
         </main>
     )
 }
+
 
 async function saveData(e: FormData){
     'use server'
     const BASEROW_AUTH = process.env.BASEROW_AUTH + ''
     const data = {
-        Type: 'Expense',
+        Type: 'Income',
         Description: e.get('description'),
         Amount: toggleNumberFormat(e.get('amount') + ''),
         Date: new Date(e.get('date') + ' ' + e.get('time')).toISOString(),
@@ -28,16 +30,17 @@ async function saveData(e: FormData){
         Category: e.get('category'),
 
     }
-    fetch('https://api.baserow.io/api/database/rows/table/329805/?user_field_names=true', {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json',
-            'Authorization': BASEROW_AUTH
-        },
-        body: JSON.stringify({ ...data }),
-    })
-}
 
+    console.log('Hello')
+    // fetch('https://api.baserow.io/api/database/rows/table/329805/?user_field_names=true', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-type': 'application/json',
+    //         'Authorization': BASEROW_AUTH
+    //     },
+    //     body: JSON.stringify({ ...data }),
+    // })
+}
 
 async function getAccounts(){
     'use server'
@@ -53,21 +56,9 @@ async function getAccounts(){
     const data = await res.json()
     return data.results
 }
-
-function toggleNumberFormat(amount: string){
-    return  amount.replace(/[^0-9.-]+/g,"");
-}
-
-function toggleMoneyFormat(amount: string){
-    if(isNaN(Number(amount))){
-        return '0'
-    }
-    return new Intl.NumberFormat().format(Number(amount))
-}
-
-async function ExpenseForm(){
+  
+async function IncomeForm(){
     const accounts = await getAccounts()
-
     return(
         <div className="py-4">
             <form action={saveData} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
@@ -86,13 +77,13 @@ async function ExpenseForm(){
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="account">Account</Label>
-                        <Select name="account" defaultValue="cash">
+                        <Select name="account" >
                             <SelectTrigger className="">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                {
+                                    {
                                         accounts.map((account: { id: string; field_2419612: string })=>(
                                             <SelectItem key={account.id} value={account.field_2419612}>{account.field_2419612}</SelectItem>
                                         ))
@@ -116,19 +107,15 @@ async function ExpenseForm(){
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectItem value="food">Food & Beverages</SelectItem>
-                                <SelectItem value="transport">Transport</SelectItem>
-                                <SelectItem value="shopping">Shopping</SelectItem>
-                                <SelectItem value="entertainment">Entertainment</SelectItem>
-                                <SelectItem value="utilities">Home Utilities</SelectItem>
+                                <SelectItem value="salary">Salary</SelectItem>
                                 <SelectItem value="gift">Gift</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="refund">Refund</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
                 </div>
                 <div className="grid gap-2">
-                    <Button type="submit">Submit</Button>
+                    <SubmitButton />
                 </div>
             </form>
         </div>

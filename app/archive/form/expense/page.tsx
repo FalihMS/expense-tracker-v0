@@ -1,11 +1,11 @@
+import { AmountInput } from "@/app/form/components/form"
+import Header from "@/app/form/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FormEvent } from "react"
-import { AmountInput } from "../components/form"
-import Header from "../components/header"
 
 export default function ExpensePage(){
     return(
