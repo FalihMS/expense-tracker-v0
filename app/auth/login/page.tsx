@@ -1,25 +1,22 @@
 'use client'
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import Header from "../components/header"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
-import { toast, useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { toast } from "@/components/ui/use-toast"
+import { useSearchParams } from "next/navigation"
+import { login } from "@/app/api/auth/action"
 
 
 export default function IncomePage() {
     return (
         <main>
-            <IncomeForm />
+            <LoginForm />
             <Toaster />
-
         </main>
     )
 }
@@ -29,9 +26,30 @@ const formSchema = z.object({
     password: z.string(),
 })
 
-function IncomeForm() {
-    const [isSubmitting, setSubmitting] = useState(false);
+function LoginForm() {
     const [passwordVisibility, setPasswordVisibility] = useState(false);
+    const searchParams = useSearchParams()
+
+    useEffect(()=> {
+        if(searchParams.get('error')){
+            toast({
+                title: "Invalid Credential",
+                duration: 2000
+            })
+        }
+    }, [searchParams])
+
+    const submitLogin = useCallback(async (formData: FormData) => {
+        await login(formData);
+
+        if(searchParams.get('error')){
+            toast({
+                title: "Invalid Credential",
+                duration: 2000
+            })
+        }
+
+    }, []);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -41,18 +59,10 @@ function IncomeForm() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // setSubmitting(true)
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
-
-    }
-
     return (
         <div className="py-4">
-            <Form  {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
+            <Form {...form}>
+                <form action={submitLogin} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
                     <div className="grid gap-2">
                         <div className="py-4">
                             <h2 className="block text-2xl text-center font-medium">Login Form</h2>
@@ -106,7 +116,7 @@ function IncomeForm() {
                             </Button>
                         </div>
                         <div className="grid gap-2">
-                            <Button disabled={isSubmitting} type="submit">Submit</Button>
+                            <Button type="submit">Submit</Button>
                         </div>
 
                     </div>
