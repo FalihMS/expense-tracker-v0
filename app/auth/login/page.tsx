@@ -49,7 +49,7 @@ function LoginForm() {
             })
         }
 
-    }, []);
+    }, [searchParams]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

@@ -1,11 +1,12 @@
+
 import Header from "../components/header"
 import { Toaster } from "@/components/ui/toaster"
 import { ExpenseForm } from "../components/form"
 import { createClient } from "@/utils/supabase/server"
 
-const supabase = createClient()
 
 export default async function ExpensePage(){
+    const supabase = createClient()
 
     const { data, error } = await supabase
         .from('accounts')
@@ -19,7 +20,7 @@ export default async function ExpensePage(){
 
     return(
         <main>
-            <Header title={"Income Form"} name={user?.user_metadata.display_name} />
+            <Header title={"Expense Form"} name={user?.user_metadata.display_name} />
             <ExpenseForm accounts={accounts} />
             <Toaster />
         </main>

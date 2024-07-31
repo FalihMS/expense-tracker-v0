@@ -62,7 +62,7 @@ function RegisterForm() {
             })
         }
 
-    }, []);
+    }, [searchParams]);
 
     return (
         <div className="py-4">

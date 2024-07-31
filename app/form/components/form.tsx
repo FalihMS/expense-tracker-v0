@@ -62,7 +62,7 @@ export function IncomeForm(props: { accounts: any[] | undefined }) {
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return (
         <div className="py-4">
@@ -251,7 +251,7 @@ export function ExpenseForm(props: { accounts: any[] | undefined }){
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return(
         <div className="py-4">
@@ -512,7 +512,7 @@ export function TransferForm(props: { accounts: any[] | undefined }) {
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return (
         <div className="py-4">

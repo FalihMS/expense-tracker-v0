@@ -3,10 +3,11 @@ import { Toaster } from "@/components/ui/toaster"
 import { TransferForm } from "../components/form"
 import { createClient } from "@/utils/supabase/server"
 
-const supabase = createClient()
 
 
 export default async function TransferPage() {
+    const supabase = createClient()
+
     const { data, error } = await supabase
         .from('accounts')
         .select()
