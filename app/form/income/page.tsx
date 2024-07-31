@@ -15,6 +15,7 @@ export default async function IncomePage() {
     } = await supabase.auth.getUser()
 
     const accounts = data?.map((account) => ({ id: account.id, name: account.name, account_no: account.account_no }))
+
     return (
         <main>
             <Header title={"Income Form"} name={user?.user_metadata.display_name} />
