@@ -18,7 +18,7 @@ export default async function IncomePage() {
     return (
         <main>
             <Header title={"Income Form"} name={user?.user_metadata.display_name} />
-            <IncomeForm />
+            <IncomeForm accounts={accounts} />
             <Toaster />
         </main>
     )

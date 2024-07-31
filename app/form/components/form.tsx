@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { toggleMoneyFormat, toggleNumberFormat } from "./util";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/components/ui/use-toast"
+import { saveIncome } from "@/app/api/transaction/action";
+import { useSearchParams } from "next/navigation";
 
 const incomeFormSchema = z.object({
     date: z.string().min(2, {
@@ -29,11 +31,9 @@ const incomeFormSchema = z.object({
     }),
 })
 
-export function IncomeForm() {
-    const [accounts, setAccounts] = useState([])
-    const [isSubmitting, setSubmitting] = useState(false);
-
+export function IncomeForm(props: { accounts: any[] | undefined }) {
     const { toast } = useToast()
+    const searchParams = useSearchParams()
 
     const form = useForm<z.infer<typeof incomeFormSchema>>({
         resolver: zodResolver(incomeFormSchema),
@@ -47,40 +47,28 @@ export function IncomeForm() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof incomeFormSchema>) {
-        setSubmitting(true)
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-            fetch('/api/transaction', {
-                method: 'POST',
-                body: JSON.stringify({ ...values, type: "Income" }),
-            }).then((res)=>{
-                return res.json()
-            }).then((data) => {
-                toast({
-                    title: data.message,
-                    duration: 2000
-                })
-                setSubmitting(false)
+    const saveTransaction = useCallback(async (formData: FormData) => {
+        await saveIncome(formData);
 
+        if(searchParams.get('error') == "1"){
+            toast({
+                title: "Invalid Credential",
+                duration: 2000
             })
+        }
 
-            
+        toast({
+            title: "Transaction Created",
+            duration: 2000
+        })
 
-    }
-
-    useEffect(function () {
-        fetch('/api/account')
-            .then((res) => res.json())
-            .then((data) => setAccounts(data))
-    }, [])
+    }, []);
 
     return (
         <div className="py-4">
             <Form  {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
+                <form action={saveTransaction} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
                     <div className="grid gap-2">
-
                         <div className="grid grid-cols-2 gap-2">
                             <FormField
                                 control={form.control}
@@ -124,8 +112,6 @@ export function IncomeForm() {
                                                 {...field}
                                                 onFocus={(e) => form.setValue("amount", toggleNumberFormat(e.target.value))}
                                                 onBlur={(e) => form.setValue("amount", toggleMoneyFormat(e.target.value))}
-                                            // onFocus={(e) => e.target.value = toggleNumberFormat(e.target.value)}
-                                            // onBlur={(e) => (e.target.value = toggleMoneyFormat(e.target.value))}
                                             />
                                         </FormControl>
                                         <FormDescription />
@@ -140,18 +126,16 @@ export function IncomeForm() {
                                     <FormItem>
                                         <FormLabel>Account</FormLabel>
                                         <FormControl>
-                                            <Select name="account" onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select name="account" onValueChange={field.onChange} >
                                                 <SelectTrigger className="">
                                                     <SelectValue placeholder="Select Account" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectGroup>
-                                                        {
-                                                            accounts.map((account: { id: string; field_2419612: string }) => (
-                                                                <SelectItem key={account.id} value={account.field_2419612}>{account.field_2419612}</SelectItem>
-                                                            ))
-                                                        }
-                                                    </SelectGroup>
+                                                    {
+                                                        props.accounts !== undefined && props.accounts.map((account: any) => (
+                                                            <SelectItem key={account.id} value={account.id.toString()}>{account.name}</SelectItem>
+                                                        ))
+                                                    }   
                                                 </SelectContent>
                                             </Select>
                                         </FormControl>
@@ -207,8 +191,9 @@ export function IncomeForm() {
                                 )}
                             />
                         </div>
+                        
                         <div className="grid gap-2">
-                            <Button disabled={isSubmitting} type="submit">Submit</Button>
+                            <Button type="submit">Submit</Button>
                         </div>
 
                     </div>
@@ -426,7 +411,6 @@ export function ExpenseForm(){
         </div>
     )
 }
-
 
 const transferFormSchema = z.object({
     date: z.string().min(2, {
