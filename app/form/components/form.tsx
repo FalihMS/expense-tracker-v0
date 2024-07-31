@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/components/ui/use-toast"
 import { saveExpense, saveIncome, saveTransfer } from "@/app/api/transaction/action";
 import { useSearchParams } from "next/navigation";
+import { useFormStatus } from "react-dom";
 
 const incomeFormSchema = z.object({
     date: z.string().min(2, {
@@ -62,7 +63,7 @@ export function IncomeForm(props: { accounts: any[] | undefined }) {
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return (
         <div className="py-4">
@@ -193,7 +194,7 @@ export function IncomeForm(props: { accounts: any[] | undefined }) {
                         </div>
                         
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
@@ -251,7 +252,7 @@ export function ExpenseForm(props: { accounts: any[] | undefined }){
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return(
         <div className="py-4">
@@ -387,7 +388,7 @@ export function ExpenseForm(props: { accounts: any[] | undefined }){
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
@@ -428,75 +429,6 @@ export function TransferForm(props: { accounts: any[] | undefined }) {
         },
     })
 
-    // async function onSubmit(values: z.infer<typeof transferFormSchema>) {
-    //     setSubmitting(true)
-
-    //     // Do something with the form values.
-    //     // ✅ This will be type-safe and validated.
-
-    //     // Post Income / In
-    //     await fetch('/api/transaction', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ 
-    //             type: "Income",
-    //             description: "Transfer In",
-    //             amount: values.amount,
-    //             date: values.date,
-    //             time: values.time,
-    //             account: values.toAccount,
-    //             category: "Transfer In",
-    //         }),
-    //     }).then((res)=>{
-    //         return res.json()
-    //     }).then((data) => {
-
-    //     })
-
-    //     // Post Expense / Out
-    //     await fetch('/api/transaction', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ 
-    //             type: "Expense",
-    //             description: "Transfer Out",
-    //             amount: values.amount,
-    //             date: values.date,
-    //             time: values.time,
-    //             account: values.fromAccount,
-    //             category: "Transfer Out",
-    //         }),
-    //     }).then((res) => {
-    //         return res.json()
-    //     }).then((data) => {
-
-    //     })
-
-    //     // Post Expense / Out
-    //     if(values.fee !== "0"){
-    //         await fetch('/api/transaction', {
-    //             method: 'POST',
-    //             body: JSON.stringify({ 
-    //                 type: "Expense",
-    //                 description: "Admin Transfer Fee",
-    //                 amount: values.fee,
-    //                 date: values.date,
-    //                 time: values.time,
-    //                 account: values.fromAccount,
-    //                 category: "Fee",
-    //             }),
-    //         }).then((res)=>{
-    //             return res.json()
-    //         }).then((data) => {
-                
-    //         })
-    //     }   
-    //     toast({
-    //         title: "Transaction Created",
-    //         duration: 2000
-    //     })
-    //     setSubmitting(false)
-
-    // }
-
     const saveTransaction = useCallback(async (formData: FormData) => {
         await saveTransfer(formData);
 
@@ -512,7 +444,7 @@ export function TransferForm(props: { accounts: any[] | undefined }) {
             duration: 2000
         })
 
-    }, []);
+    }, [searchParams, toast]);
 
     return (
         <div className="py-4">
@@ -652,12 +584,20 @@ export function TransferForm(props: { accounts: any[] | undefined }) {
                         </div>
 
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
                 </form>
             </Form>
         </div>
+    )
+}
+
+function SubmitButton(){
+    const { pending } = useFormStatus()
+
+    return(
+        <Button disabled={pending} type="submit">Submit</Button>
     )
 }
