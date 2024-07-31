@@ -11,7 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/components/ui/use-toast"
-import { saveIncome } from "@/app/api/transaction/action";
+import { saveExpense, saveIncome } from "@/app/api/transaction/action";
 import { useSearchParams } from "next/navigation";
 
 const incomeFormSchema = z.object({
@@ -220,11 +220,9 @@ const expenseFormSchema = z.object({
     }),
 })
 
-export function ExpenseForm(){
-    const [accounts, setAccounts] = useState([])
-    const [isSubmitting, setSubmitting] = useState(false);
-
+export function ExpenseForm(props: { accounts: any[] | undefined }){
     const { toast } = useToast()
+    const searchParams = useSearchParams()
 
     const form = useForm<z.infer<typeof expenseFormSchema>>({
         resolver: zodResolver(expenseFormSchema),
@@ -238,38 +236,27 @@ export function ExpenseForm(){
         },
     })
 
-    function onSubmit(values: z.infer<typeof expenseFormSchema>) {
-        setSubmitting(true)
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-            fetch('/api/transaction', {
-                method: 'POST',
-                body: JSON.stringify({ ...values, type: "Expense" }),
-            }).then((res)=>{
-                return res.json()
-            }).then((data) => {
-                toast({
-                    title: data.message,
-                    duration: 2000
-                })
-                setSubmitting(false)
+    const saveTransaction = useCallback(async (formData: FormData) => {
+        await saveExpense(formData);
 
+        if(searchParams.get('error') == "1"){
+            toast({
+                title: "Invalid Credential",
+                duration: 2000
             })
+        }
 
-            
+        toast({
+            title: "Transaction Created",
+            duration: 2000
+        })
 
-    }
-
-    useEffect(function () {
-        fetch('/api/account')
-            .then((res) => res.json())
-            .then((data) => setAccounts(data))
-    }, [])
+    }, []);
 
     return(
         <div className="py-4">
             <Form  {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
+                <form action={saveTransaction} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
                     <div className="grid gap-2">
 
                         <div className="grid grid-cols-2 gap-2">
@@ -315,8 +302,6 @@ export function ExpenseForm(){
                                                 {...field}
                                                 onFocus={(e) => form.setValue("amount", toggleNumberFormat(e.target.value))}
                                                 onBlur={(e) => form.setValue("amount", toggleMoneyFormat(e.target.value))}
-                                            // onFocus={(e) => e.target.value = toggleNumberFormat(e.target.value)}
-                                            // onBlur={(e) => (e.target.value = toggleMoneyFormat(e.target.value))}
                                             />
                                         </FormControl>
                                         <FormDescription />
@@ -338,10 +323,10 @@ export function ExpenseForm(){
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {
-                                                            accounts.map((account: { id: string; field_2419612: string }) => (
-                                                                <SelectItem key={account.id} value={account.field_2419612}>{account.field_2419612}</SelectItem>
+                                                            props.accounts !== undefined && props.accounts.map((account: any) => (
+                                                                <SelectItem key={account.id} value={account.id.toString()}>{account.name}</SelectItem>
                                                             ))
-                                                        }
+                                                        } 
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -402,7 +387,7 @@ export function ExpenseForm(){
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Button disabled={isSubmitting} type="submit">Submit</Button>
+                            <Button type="submit">Submit</Button>
                         </div>
 
                     </div>
