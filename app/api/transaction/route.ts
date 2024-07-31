@@ -4,17 +4,6 @@ const BASEROW_AUTH = String(process.env.BASEROW_AUTH)
 
 export async function POST(request: Request) {
     const req = await request.json()
-    const data = {
-        Type: await req.type,
-        Description: await req.description,
-        Amount: await req.amount,
-        Date: new Date(await req.date + ' ' + await req.time).toISOString(),
-        Account: await req.account,
-        Category: await req.category,
-    }
-
-    console.log(JSON.stringify({ ...data }))
-
     const saveData = await fetch('https://api.baserow.io/api/database/rows/table/329805/?user_field_names=true', {
         method: 'POST',
         headers: {

@@ -27,14 +27,15 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if(user !== null){
-    redirect('/home')
+  console.log(user)
+
+  if(user == null){
+    redirect('/auth/login')
   }
 
   return (
     <html lang="en">
       <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
-        <Header />
         {children}
       </body>
     </html>

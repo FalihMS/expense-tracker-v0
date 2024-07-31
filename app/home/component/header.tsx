@@ -10,23 +10,18 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export default function Header(props: {title: string, name: string}){
-    return(
+export default function Header(props: { name: string }) {
+    return (
         <div className="py-4 border-b">
             <div className="mx-4 lg:mx-auto max-w-3xl flex justify-between items-center">
-                <a href="/" className="border rounded p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-                    </svg>
-                </a>
-
-                <h1 className="font-medium">{props.title}</h1>
-                
+                <h1 className="font-medium">Personal Expense Tracker</h1>
                 <UserDropdown name={props.name} />
             </div>
+
         </div>
     )
 }
+
 
 export function UserDropdown(props: { name: string }) {
     return (
