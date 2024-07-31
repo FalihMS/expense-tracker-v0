@@ -11,7 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/components/ui/use-toast"
-import { saveExpense, saveIncome } from "@/app/api/transaction/action";
+import { saveExpense, saveIncome, saveTransfer } from "@/app/api/transaction/action";
 import { useSearchParams } from "next/navigation";
 
 const incomeFormSchema = z.object({
@@ -412,11 +412,9 @@ const transferFormSchema = z.object({
     }),
 })
 
-export function TransferForm() {
-    const [accounts, setAccounts] = useState([])
-    const [isSubmitting, setSubmitting] = useState(false);
-
+export function TransferForm(props: { accounts: any[] | undefined }) {
     const { toast } = useToast()
+    const searchParams = useSearchParams()
 
     const form = useForm<z.infer<typeof transferFormSchema>>({
         resolver: zodResolver(transferFormSchema),
@@ -430,85 +428,96 @@ export function TransferForm() {
         },
     })
 
-    async function onSubmit(values: z.infer<typeof transferFormSchema>) {
-        setSubmitting(true)
+    // async function onSubmit(values: z.infer<typeof transferFormSchema>) {
+    //     setSubmitting(true)
 
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
+    //     // Do something with the form values.
+    //     // ✅ This will be type-safe and validated.
 
-        // Post Income / In
-        await fetch('/api/transaction', {
-            method: 'POST',
-            body: JSON.stringify({ 
-                type: "Income",
-                description: "Transfer In",
-                amount: values.amount,
-                date: values.date,
-                time: values.time,
-                account: values.toAccount,
-                category: "Transfer In",
-            }),
-        }).then((res)=>{
-            return res.json()
-        }).then((data) => {
+    //     // Post Income / In
+    //     await fetch('/api/transaction', {
+    //         method: 'POST',
+    //         body: JSON.stringify({ 
+    //             type: "Income",
+    //             description: "Transfer In",
+    //             amount: values.amount,
+    //             date: values.date,
+    //             time: values.time,
+    //             account: values.toAccount,
+    //             category: "Transfer In",
+    //         }),
+    //     }).then((res)=>{
+    //         return res.json()
+    //     }).then((data) => {
 
-        })
+    //     })
 
-        // Post Expense / Out
-        await fetch('/api/transaction', {
-            method: 'POST',
-            body: JSON.stringify({ 
-                type: "Expense",
-                description: "Transfer Out",
-                amount: values.amount,
-                date: values.date,
-                time: values.time,
-                account: values.fromAccount,
-                category: "Transfer Out",
-            }),
-        }).then((res) => {
-            return res.json()
-        }).then((data) => {
+    //     // Post Expense / Out
+    //     await fetch('/api/transaction', {
+    //         method: 'POST',
+    //         body: JSON.stringify({ 
+    //             type: "Expense",
+    //             description: "Transfer Out",
+    //             amount: values.amount,
+    //             date: values.date,
+    //             time: values.time,
+    //             account: values.fromAccount,
+    //             category: "Transfer Out",
+    //         }),
+    //     }).then((res) => {
+    //         return res.json()
+    //     }).then((data) => {
 
-        })
+    //     })
 
-        // Post Expense / Out
-        if(values.fee !== "0"){
-            await fetch('/api/transaction', {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    type: "Expense",
-                    description: "Admin Transfer Fee",
-                    amount: values.fee,
-                    date: values.date,
-                    time: values.time,
-                    account: values.fromAccount,
-                    category: "Fee",
-                }),
-            }).then((res)=>{
-                return res.json()
-            }).then((data) => {
+    //     // Post Expense / Out
+    //     if(values.fee !== "0"){
+    //         await fetch('/api/transaction', {
+    //             method: 'POST',
+    //             body: JSON.stringify({ 
+    //                 type: "Expense",
+    //                 description: "Admin Transfer Fee",
+    //                 amount: values.fee,
+    //                 date: values.date,
+    //                 time: values.time,
+    //                 account: values.fromAccount,
+    //                 category: "Fee",
+    //             }),
+    //         }).then((res)=>{
+    //             return res.json()
+    //         }).then((data) => {
                 
+    //         })
+    //     }   
+    //     toast({
+    //         title: "Transaction Created",
+    //         duration: 2000
+    //     })
+    //     setSubmitting(false)
+
+    // }
+
+    const saveTransaction = useCallback(async (formData: FormData) => {
+        await saveTransfer(formData);
+
+        if(searchParams.get('error') == "1"){
+            toast({
+                title: "Invalid Credential",
+                duration: 2000
             })
-        }   
+        }
+
         toast({
             title: "Transaction Created",
             duration: 2000
         })
-        setSubmitting(false)
 
-    }
-
-    useEffect(function () {
-        fetch('/api/account')
-            .then((res) => res.json())
-            .then((data) => setAccounts(data))
-    }, [])
+    }, []);
 
     return (
         <div className="py-4">
             <Form  {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
+                <form action={saveTransaction} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
                     <div className="grid gap-2">
 
                         <div className="grid grid-cols-2 gap-2">
@@ -550,17 +559,17 @@ export function TransferForm() {
                                     <FormItem>
                                         <FormLabel>From Account</FormLabel>
                                         <FormControl>
-                                            <Select name="account" onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select name="fromAccount" onValueChange={field.onChange} defaultValue={field.value}>
                                                 <SelectTrigger className="">
                                                     <SelectValue placeholder="Select Account" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {
-                                                            accounts.map((account: { id: string; field_2419612: string }) => (
-                                                                <SelectItem key={account.id} value={account.field_2419612}>{account.field_2419612}</SelectItem>
+                                                            props.accounts !== undefined && props.accounts.map((account: any) => (
+                                                                <SelectItem key={account.id} value={account.id.toString()}>{account.name}</SelectItem>
                                                             ))
-                                                        }
+                                                        } 
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -577,17 +586,17 @@ export function TransferForm() {
                                     <FormItem>
                                         <FormLabel>To Account</FormLabel>
                                         <FormControl>
-                                            <Select name="account" onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select name="toAccount" onValueChange={field.onChange} defaultValue={field.value}>
                                                 <SelectTrigger className="">
                                                     <SelectValue placeholder="Select Account" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {
-                                                            accounts.map((account: { id: string; field_2419612: string }) => (
-                                                                <SelectItem key={account.id} value={account.field_2419612}>{account.field_2419612}</SelectItem>
+                                                            props.accounts !== undefined && props.accounts.map((account: any) => (
+                                                                <SelectItem key={account.id} value={account.id.toString()}>{account.name}</SelectItem>
                                                             ))
-                                                        }
+                                                        } 
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -643,7 +652,7 @@ export function TransferForm() {
                         </div>
 
                         <div className="grid gap-2">
-                            <Button disabled={isSubmitting} type="submit">Submit</Button>
+                            <Button type="submit">Submit</Button>
                         </div>
 
                     </div>
