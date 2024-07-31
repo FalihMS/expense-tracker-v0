@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/components/ui/use-toast"
 import { saveExpense, saveIncome, saveTransfer } from "@/app/api/transaction/action";
 import { useSearchParams } from "next/navigation";
+import { useFormStatus } from "react-dom";
 
 const incomeFormSchema = z.object({
     date: z.string().min(2, {
@@ -193,7 +194,7 @@ export function IncomeForm(props: { accounts: any[] | undefined }) {
                         </div>
                         
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
@@ -387,7 +388,7 @@ export function ExpenseForm(props: { accounts: any[] | undefined }){
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
@@ -583,12 +584,20 @@ export function TransferForm(props: { accounts: any[] | undefined }) {
                         </div>
 
                         <div className="grid gap-2">
-                            <Button type="submit">Submit</Button>
+                            <SubmitButton />
                         </div>
 
                     </div>
                 </form>
             </Form>
         </div>
+    )
+}
+
+function SubmitButton(){
+    const { pending } = useFormStatus()
+
+    return(
+        <Button disabled={pending} type="submit">Submit</Button>
     )
 }
