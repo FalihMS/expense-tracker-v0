@@ -1,4 +1,14 @@
 "use client"
+import * as React from "react"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Header(props: { name: string }) {
     return (
@@ -12,18 +22,6 @@ export default function Header(props: { name: string }) {
     )
 }
 
-import * as React from "react"
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
-
 
 export function UserDropdown(props: { name: string }) {
     return (
@@ -36,8 +34,8 @@ export function UserDropdown(props: { name: string }) {
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel className="text-right">{props.name}</DropdownMenuLabel>
-                <Separator />
+                <DropdownMenuLabel>{props.name}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
 
                 <DropdownMenuItem asChild>
                     <a className="flex justify-between" href="#">
