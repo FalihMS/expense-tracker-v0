@@ -30,10 +30,10 @@ export function LoginForm() {
                 title: "Invalid Credential",
                 duration: 2000
             })
-        }
-        
-        redirect('/home')
+        }else{
+            redirect('/home')
 
+        }
     }, []);
 
     const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -120,7 +120,6 @@ const registerFormSchema = z.object({
 
 export function RegisterForm() {
     const [passwordVisibility, setPasswordVisibility] = useState([false, false]);
-    const searchParams = useSearchParams()
 
     const form = useForm<z.infer<typeof registerFormSchema>>({
         resolver: zodResolver(registerFormSchema),
@@ -132,15 +131,6 @@ export function RegisterForm() {
         },
     })
 
-    useEffect(()=> {
-        if(searchParams.get('error')){
-            toast({
-                title: "Invalid Credential",
-                duration: 2000
-            })
-        }
-    }, [searchParams])
-
     const submitRegister = useCallback(async (formData: FormData) => {
 
         const { error, message} = await signup(formData);
@@ -150,9 +140,10 @@ export function RegisterForm() {
                 title: message,
                 duration: 2000
             })
+        }else{
+            redirect('/home')
         }
         
-        redirect('/home')
     }, []);
 
     return (
