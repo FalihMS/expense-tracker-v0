@@ -141,7 +141,7 @@ export function RegisterForm() {
                 duration: 2000
             })
         }else{
-            redirect('/home')
+            redirect('/auth/register/confirm')
         }
         
     }, []);
