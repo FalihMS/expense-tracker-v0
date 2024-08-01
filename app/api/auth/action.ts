@@ -17,13 +17,10 @@ export async function login(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithPassword(data)
 
-
   if (error) {
-    console.log(error)
-    redirect('/auth/login?error=1')
+    return { error: true, message: 'Invalid Credentials' }
   }
-  revalidatePath('/', 'layout')
-  redirect('/home')
+  return { message: 'Success' }
 }
 
 export async function signup(formData: FormData) {
@@ -44,9 +41,8 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/auth/register?error=1')
+    return { error: true, message: 'Invalid Credentials' }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/account')
+  return { message: 'Success' }
 }

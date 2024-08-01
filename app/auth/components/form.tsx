@@ -6,7 +6,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
-import { useSearchParams } from "next/navigation"
+import { redirect, useSearchParams } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
 import { useFormStatus } from "react-dom"
 import { login, signup } from "@/app/api/auth/action"
@@ -19,28 +19,22 @@ const loginFormSchema = z.object({
 
 export function LoginForm() {
     const [passwordVisibility, setPasswordVisibility] = useState(false);
-    const searchParams = useSearchParams()
 
-    useEffect(()=> {
-        if(searchParams.get('error')){
-            toast({
-                title: "Invalid Credential",
-                duration: 2000
-            })
-        }
-    }, [searchParams])
 
     const submitLogin = useCallback(async (formData: FormData) => {
-        await login(formData);
+        const { error, message } = await login(formData);
+        console.log(message)
 
-        if(searchParams.get('error')){
+        if(error){
             toast({
                 title: "Invalid Credential",
                 duration: 2000
             })
         }
+        
+        redirect('/home')
 
-    }, [searchParams]);
+    }, []);
 
     const form = useForm<z.infer<typeof loginFormSchema>>({
         resolver: zodResolver(loginFormSchema),
@@ -147,22 +141,24 @@ export function RegisterForm() {
         }
     }, [searchParams])
 
-    const submitLogin = useCallback(async (formData: FormData) => {
-        await signup(formData);
+    const submitRegister = useCallback(async (formData: FormData) => {
 
-        if(searchParams.get('error')){
+        const { error, message} = await signup(formData);
+
+        if(error){
             toast({
-                title: "Invalid Credential",
+                title: message,
                 duration: 2000
             })
         }
-
-    }, [searchParams]);
+        
+        redirect('/home')
+    }, []);
 
     return (
         <div className="py-4">
             <Form  {...form}>
-                <form  action={submitLogin} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
+                <form  action={submitRegister} className="mx-4 p-4 lg:mx-auto max-w-3xl grid gap-4 border rounded">
                     <div className="grid gap-2">
                         <div className="py-4">
                             <h2 className="block text-2xl text-center font-medium">Register Form</h2>
